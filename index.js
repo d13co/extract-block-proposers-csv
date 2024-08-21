@@ -11,7 +11,9 @@ function error(msg) { console.error(msg); process.exit(1) }
 const dbPath = process.argv[2] ?? '/var/lib/algorand/fnet-v1/ledger.block.sqlite';
 const start = process.argv[3] ? Number(process.argv[3]) : 0;
 
-const sql = `select rnd, certdata from blocks where rnd > ${start} order by rnd`;
+const sql = `select rnd, hdrdata, certdata from blocks where rnd > ${start} order by rnd`;
+
+console.log("rnd,proposer,payout");
 
 stream.pipeline(
     [
@@ -23,9 +25,9 @@ stream.pipeline(
 )
 
 function print(row) {
-    const certdata = msgpack.decode(row.certdata);
-    const propRaw = certdata.prop.oprop;
+    const { prop: { oprop: propRaw } } = msgpack.decode(row.certdata);
     const prop = algosdk.encodeAddress(propRaw);
+    const { pp = '' } = msgpack.decode(row.hdrdata);
     const { rnd } = row;
-    return `${rnd},${prop}\n`;
+    return `${rnd},${prop},${pp}\n`;
 }
