@@ -21,7 +21,7 @@ stream.pipeline(
         new stream.Transform( { objectMode: true, transform:( data, enc, cb ) => cb( null, print(data) ) } ),
         process.stdout
     ],
-    err => { err && console.error(err); process.exit(0) }
+    err => { err && console.error(err); }
 )
 
 function print(row) {
